@@ -8,8 +8,8 @@ import 'datatables.net-buttons/js/buttons.colVis.min.js';
 import 'datatables.net-buttons-dt/css/buttons.dataTables.css';
 import 'datatables.net-searchpanes/js/dataTables.searchPanes.min.js';
 import 'datatables.net-searchpanes-dt/css/searchPanes.dataTables.css';
-import 'datatables.net-select-dt/css/select.dataTables.css'; // Include Select CSS
-import 'datatables.net-select/js/dataTables.select.min.js'; // Include Select JS
+import 'datatables.net-select-dt/css/select.dataTables.css';
+import 'datatables.net-select/js/dataTables.select.min.js'; 
 const $ = require('jquery');
 $.DataTable = require('datatables.net');
 
@@ -40,10 +40,16 @@ class DataTableComponent extends Component {
         parsedItem.timestamp = `${timestamp.getDate()}/${timestamp.getMonth() + 1}/${timestamp.getFullYear()}`;
       }
 
+      if (parsedItem.ssl_cert && parsedItem.ssl_cert.version && parsedItem.ssl_cert.version["$numberInt"])
+      {
+        parsedItem.ssl_cert.version = parseInt(parsedItem.ssl_cert.version["$numberInt"])
+      }
+
       if (parsedItem.clock) {
+        parsedItem["timing"] = {start: 0};
         Object.keys(parsedItem.clock).forEach((key) => {
           const numericValue = parsedItem.clock[key].$numberDouble;
-          parsedItem[key] = parseFloat(numericValue);
+          parsedItem["timing"][key] = parseFloat(numericValue);
         });
   
         // Remove the original clock property
@@ -58,10 +64,9 @@ class DataTableComponent extends Component {
 
   componentDidMount() {
     // Fetch data from localhost:8080/api
-    fetch('http://localhost:8080/api', {mode: 'cors'})
+    fetch('http://38.242.254.230:8080/', {mode: 'cors'})
       .then((response) => response.json())
       .then((data) => {
-        
        data = this.parseData(data);
 
         if (this.dataTableInstance) {
@@ -84,6 +89,14 @@ class DataTableComponent extends Component {
               targets: '_all',
               visible: true, // Set default visibility for all columns
             },
+            {
+              targets: ['timing'],
+              visible: false, // Set default visibility for all columns
+            },
+            {
+              targets: '_all',
+              defaultContent: ""
+            }
           ],
         });
 
@@ -91,6 +104,7 @@ class DataTableComponent extends Component {
         this.dataTableInstance.columns().every(function () {
           const column = this;
           columnToggles[column.index()] = true;
+          return true;
         });
         this.setState({ columnToggles });
         
