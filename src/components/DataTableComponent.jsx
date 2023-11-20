@@ -64,7 +64,7 @@ class DataTableComponent extends Component {
 
   componentDidMount() {
     // Fetch data from localhost:8080/api
-    fetch('http://38.242.254.230:8080/', {mode: 'cors'})
+    fetch('https://bittrading.click:8080/', {mode: 'cors'})
       .then((response) => response.json())
       .then((data) => {
        data = this.parseData(data);

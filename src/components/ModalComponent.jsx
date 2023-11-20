@@ -58,7 +58,7 @@ const ModalComponent = ({ show, handleClose, data }) => {
                 {screenshot_file_path && (
                   <div className="col-md-6">
                     <img
-                      src={`http://bittrading.click/screenshots/${screenshot_file_path}`}
+                      src={`https://bittrading.click/screenshots/${screenshot_file_path}`}
                       alt="Screenshot"
                       className="img-fluid"
                     />
