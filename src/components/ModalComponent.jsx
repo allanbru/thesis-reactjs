@@ -8,6 +8,18 @@ const ModalComponent = ({ show, handleClose, data }) => {
     return null;
   }
 
+  if(typeof(data) == 'string')
+  { 
+    try{
+      let data_2 = JSON.parse(data);
+      data = data_2;
+    }
+    catch(e)
+    {
+      // ignore
+    }
+  }
+  
   const { screenshot_file_path, ...restData } = data;
 
   const modalStyle = {
@@ -58,7 +70,7 @@ const ModalComponent = ({ show, handleClose, data }) => {
                 {screenshot_file_path && (
                   <div className="col-md-6">
                     <img
-                      src={`https://bittrading.click/screenshots/${screenshot_file_path}`}
+                      src={`https://media.bittrading.click/${screenshot_file_path}`}
                       alt="Screenshot"
                       className="img-fluid"
                     />

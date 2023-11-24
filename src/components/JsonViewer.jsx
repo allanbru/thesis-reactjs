@@ -2,6 +2,18 @@
 import React, { useState } from 'react';
 
 const JsonViewer = ({ data, initial = false }) => {
+
+  if(typeof(data) == 'string') {
+    try {
+      const data_2 = JSON.parse(data);
+      data = data_2;
+    } 
+      catch (e)
+    {
+      //pass
+    }
+  }
+
   const [expanded, setExpanded] = useState(initial);
 
   const toggleExpand = () => {
@@ -10,7 +22,7 @@ const JsonViewer = ({ data, initial = false }) => {
 
   return (
     <div>
-      {data && typeof data === 'object' ? (
+      {data && typeof (data) === 'object' ? (
         <div>
           <button className='btn btn-secondary' style={{fontWeight: 'bold'}} onClick={toggleExpand}>{expanded ? '[-]' : '[+]'}</button>
           {expanded && (
@@ -25,7 +37,7 @@ const JsonViewer = ({ data, initial = false }) => {
           )}
         </div>
       ) : (
-        <span>{JSON.stringify(data)}</span>
+        <span>{data}</span>
       )}
     </div>
   );
