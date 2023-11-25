@@ -20,7 +20,7 @@ const ModalComponent = ({ show, handleClose, data }) => {
     }
   }
   
-  const { screenshot_file_path, ...restData } = data;
+  const { screenshot_file_path, id, _id, ...restData } = data;
 
   const modalStyle = {
     display: show ? 'block' : 'none',
@@ -74,6 +74,21 @@ const ModalComponent = ({ show, handleClose, data }) => {
                       alt="Screenshot"
                       className="img-fluid"
                     />
+
+                    <hr />
+
+                    <form action="#">
+                      <h6>
+                        How would you classify this website?
+                      </h6>
+                      <input name="mongodbid" type="hidden" value={_id} />
+                      <div className="btn-group-vertical w-100 font-weight-bold" role='group'>
+                        <button name="classify" className='btn btn-success' value="legitimate">Legitimate</button>
+                        <button name="classify" className='btn btn-warning' value="dubious">Dubious</button>
+                        <button name="classify" className='btn btn-danger' value="suspicious">Suspicious</button>
+                        <button name="classify" className='btn btn-dark' value="parked">Parked</button>
+                      </div>
+                    </form>
                   </div>
                 )}
               </div>

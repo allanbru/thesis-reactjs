@@ -38,12 +38,15 @@ class DataTableComponent extends Component {
     // Parse _id, id, and timestamp
     const parsedData = data.map(item => {
       const parsedItem = { ...item };
+      
       if (parsedItem._id) {
-        delete parsedItem._id;
+        parsedItem._id = (parsedItem._id["$oid"]) ? parsedItem._id["$oid"] : null;
       }
+      
       if (parsedItem.id) {
         delete parsedItem.id
       }
+
       if (parsedItem.timestamp && parsedItem.timestamp.$date) {
         const timestamp = new Date(parseInt(parsedItem.timestamp.$date.$numberLong, 10));
         parsedItem.timestamp = `${timestamp.getDate()}/${timestamp.getMonth() + 1}/${timestamp.getFullYear()}`;
@@ -98,7 +101,7 @@ class DataTableComponent extends Component {
       
       this.dataTableInstance = $(this.tableRef.current).DataTable({
         data,
-        columns: Object.keys(data[0]).map((key) => ({ title: key, data: key })),
+        columns: Object.keys(data[0]).map((key) => ({title: key, data: key})),
         dom: '<"#queryBuilder"Q>Bfrtip', // Example: To enable DataTables buttons (optional)
         buttons: ['copy', 'csv', 'excel', 'pdf', 'print'], // Example: To enable DataTables buttons (optional)
         select: true,
@@ -106,12 +109,12 @@ class DataTableComponent extends Component {
           layout: 'columns-3',
         },
         columnDefs: [
-          {
+          /*{
             targets: '_all',
             visible: true, // Set default visibility for all columns
-          },
+          },*/
           {
-            targets: ['timing'],
+            targets: [0],
             visible: false, // Set default visibility for all columns
           },
           {
@@ -129,6 +132,7 @@ class DataTableComponent extends Component {
       });
       this.setState({ columnToggles });
       
+      this.dataTableInstance.on('init', () => this.getData());
       this.dataTableInstance.on('draw', () => this.getData());
 
       $(this.tableRef.current).on('click', 'tbody tr', (e) => {
@@ -166,28 +170,23 @@ class DataTableComponent extends Component {
   };
 
   renderColumnToggleList = () => {
+    
     const { columnToggles } = this.state;
     if (!this.dataTableInstance) {
       return null; // or return loading indicator or an empty list
     }
+
     const columns = this.dataTableInstance.columns().header().toArray();
 
     return (
       <div>
         <strong>Toggle Columns:</strong>
-        <ul>
-          {columns.map((column, index) => (
-            <li key={index}>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={columnToggles[index]}
-                  onChange={() => this.handleToggleColumn(index)}
-                />
-                {column.innerText}
-              </label>
+        <ul className='list-group list-group-horizontal'>
+          {columns.map((column, index) => column.innerText !== "_id" ? (
+            <li key={index} onClick={() => this.handleToggleColumn(index)} className={columnToggles[index] ? ('list-group-item flex-fill active') : ('list-group-item flex-fill')}>
+              {column.innerText}
             </li>
-          ))}
+          ): (<></>))}
         </ul>
       </div>
     );
@@ -232,15 +231,17 @@ class DataTableComponent extends Component {
 
         {this.state.shownData && this.state.shownData.length > 0 ? (
           <Gallery shownData={this.state.shownData} showModal={this.showModal} />
+        ) : this.dataTableInstance ? (
+          <>
+            <p>If you <b>already</b> see the table but you don't see any image, please refresh the Gallery.</p>
+            <button className='btn btn-secondary btn-block' onClick={this.getData}>
+               Refresh Gallery
+            </button>
+          </>
         ) : (
-          <small className='text-secondary'>No data to show. If you see the table but you don't see any image, please refresh the Gallery.</small>
-        )}
-
-        { this.dataTableInstance && (
-          <button className='btn btn-secondary btn-block' onClick={this.getData}>
-            Refresh Gallery
-          </button>
-        )}
+          <small className='text-secondary'>Loading data, please wait... </small>
+        )
+        }
 
       </div>
     );
