@@ -40,11 +40,16 @@ class DataTableComponent extends Component {
       const parsedItem = { ...item };
       
       if (parsedItem._id) {
-        parsedItem._id = (parsedItem._id["$oid"]) ? parsedItem._id["$oid"] : null;
+        parsedItem._id = (parsedItem._id["$oid"]) ? parsedItem._id["$oid"] : parsedItem._id;
       }
       
       if (parsedItem.id) {
         delete parsedItem.id
+      }
+
+      if(!parsedItem.label)
+      {
+        parsedItem.label = null;
       }
 
       if (parsedItem.timestamp && parsedItem.timestamp.$date) {
@@ -144,19 +149,27 @@ class DataTableComponent extends Component {
   componentDidMount() {
     // Fetch data from localhost:8080/api
     fetch('https://bittrading.click:8080/', {mode: 'cors'})
-      .then((response) => response.json())
-      .then((data) => this.startTable(data));
+    .then((response) => response.json())
+    .then((data) => this.startTable(data));
+    document.addEventListener("keydown", this.escFunction, false);
   }
 
   componentWillUnmount() {
     if (this.dataTableInstance) {
       this.dataTableInstance.destroy();
     }
+    document.removeEventListener("keydown", this.escFunction, false);
   }
 
   handleCloseModal = () => {
     this.setState({ showModal: false, modalData: null });
   };
+
+  escFunction(event){
+    if (event.key === "Escape") {
+      this.handleCloseModal();
+    }
+  }
 
   handleToggleColumn = (columnIdx) => {
     const { columnToggles } = this.state;
@@ -181,9 +194,9 @@ class DataTableComponent extends Component {
     return (
       <div>
         <strong>Toggle Columns:</strong>
-        <ul className='list-group list-group-horizontal'>
+        <ul key="ul" className='list-group list-group-horizontal'>
           {columns.map((column, index) => column.innerText !== "_id" ? (
-            <li key={index} onClick={() => this.handleToggleColumn(index)} className={columnToggles[index] ? ('list-group-item flex-fill active') : ('list-group-item flex-fill')}>
+            <li key={column.innerText} onClick={() => this.handleToggleColumn(index)} className={columnToggles[index] ? ('list-group-item flex-fill active') : ('list-group-item flex-fill')}>
               {column.innerText}
             </li>
           ): (<></>))}
@@ -206,12 +219,12 @@ class DataTableComponent extends Component {
     return (
       <div>
 
-        <div className='row'>
-          <div className='col-md-4'>
+        <div key="mainrow" className='row'>
+          <div key="col1" className='col-md-4'>
             {this.renderColumnToggleList()}
           </div>
-          <div className='col-md-8'>
-            <div id="queryBuilder">
+          <div key="col2" className='col-md-8'>
+            <div key="qb" id="queryBuilder">
 
             </div>
           </div>

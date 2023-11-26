@@ -20,7 +20,8 @@ const ModalComponent = ({ show, handleClose, data }) => {
     }
   }
   
-  const { screenshot_file_path, id, _id, ...restData } = data;
+  const { screenshot_file_path, _id, ...restData } = data;
+
 
   const modalStyle = {
     display: show ? 'block' : 'none',
@@ -39,6 +40,34 @@ const ModalComponent = ({ show, handleClose, data }) => {
   const modalContentStyle = {
     maxHeight: '80vh', // Set the maximum height as needed
     overflowY: 'auto', // Enable vertical scrolling
+  };
+
+  const handleClassification = (value) => {
+
+  // Make the PUT request
+  fetch('https://bittrading.click:8080', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      _id: _id,
+      label: value,
+    }),
+  })
+    .then(response => response.json())
+    .then(data => {
+      // Handle the response if needed
+      if(data.appended)
+      {
+        restData["label"] = data.appended.label;
+        restData["labeled_by"] = data.appended.labeled_by;
+      }
+    })
+    .catch(error => {
+      // Handle errors if any
+      console.error('Error:', error);
+    });
   };
 
   return (
@@ -77,18 +106,26 @@ const ModalComponent = ({ show, handleClose, data }) => {
 
                     <hr />
 
-                    <form action="#">
-                      <h6>
-                        How would you classify this website?
-                      </h6>
-                      <input name="mongodbid" type="hidden" value={_id} />
-                      <div className="btn-group-vertical w-100 font-weight-bold" role='group'>
-                        <button name="classify" className='btn btn-success' value="legitimate">Legitimate</button>
-                        <button name="classify" className='btn btn-warning' value="dubious">Dubious</button>
-                        <button name="classify" className='btn btn-danger' value="suspicious">Suspicious</button>
-                        <button name="classify" className='btn btn-dark' value="parked">Parked</button>
-                      </div>
-                    </form>
+                    { restData.label === 'null' ? (
+                      <div>
+                        <h6>
+                          How would you classify this website?
+                        </h6>
+                        <div className="btn-group-vertical w-100 font-weight-bold" role='group'>
+                          <button key="b-legitimate" type="button" onClick={() => handleClassification('legitimate')} className='btn btn-success'>Legitimate</button>
+                          <button key="b-dubious" type="button" onClick={() => handleClassification('dubious')} className='btn btn-warning'>Dubious</button>
+                          <button key="b-suspicious" type="button" onClick={() => handleClassification('suspicious')} className='btn btn-danger'>Suspicious</button>
+                          <button key="b-parked" type="button" onClick={() => handleClassification('whitepage/error')} className='btn btn-secondary'>Whitepage/Error</button>
+                          <button key="b-parked" type="button" onClick={() => handleClassification('parked')} className='btn btn-dark'>Parked</button>
+                        </div>
+                      </div> 
+                      ) : (
+                        <div>
+                          <h4>Label: {restData.label}</h4>
+                          <small> Labeled By: {restData.labeled_by}</small>
+                        </div>
+                      )
+                    }
                   </div>
                 )}
               </div>
