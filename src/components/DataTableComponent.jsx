@@ -165,9 +165,9 @@ class DataTableComponent extends Component {
     this.setState({ showModal: false, modalData: null });
   };
 
-  escFunction(event){
+  escFunction = (event) => {
     if (event.key === "Escape") {
-      this.handleCloseModal();
+      this.setState({ showModal: false, modalData: null });
     }
   }
 
